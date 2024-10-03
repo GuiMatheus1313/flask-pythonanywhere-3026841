@@ -10,7 +10,7 @@ def hello_world():
 @app.route('/user/<name>')
 def hello_world2(name):
     return '<p>Hello from Flask!</p><table><tr><td><b>Aluno:</b></td><td>{}</td></tr><tr><td><b>Prontuário:</b></td><td>PT3026841</td></tr></table>'.format(name)
-
+"""
 @app.route('/contextoderequisicao')
 def contexto():
     user_agent = request.headers.get('User-Agent')
@@ -28,7 +28,7 @@ def objectresponse():
     return response
 
 #EXEMPLO DE FAZER UM COOKIE
-"""
+
 resp.set_cookie(
         'meu_cookie',
         'valor_do_cookie',
@@ -39,7 +39,7 @@ resp.set_cookie(
         httponly=True,
         samesite='Lax'
     )
-"""
+
 
 @app.route('/redirecionamento')
 def redirection():
@@ -48,7 +48,7 @@ def redirection():
 @app.route('/abortar')
 def aborta():
     return abort(403)
-
+"""
 
 
 
