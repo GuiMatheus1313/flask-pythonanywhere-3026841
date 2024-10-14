@@ -5,7 +5,7 @@ app = Flask(__name__)
 @app.route('/')
 def hello_world():
     name = "eu estou usando o JINJA2!";
-    return render_template('indexReal.html');
+    return render_template('index.html');
 
 
 @app.route('/user/<name>/<pront>/<inst>')
