@@ -1,22 +1,27 @@
 # A very simple Flask Hello World app for you to get started with...
 from flask import Flask, request, render_template
+from datetime import datetime
+from flask_moment import Moment #Perguntar ao professor se o objeto fo flask está vivo na memória para os outros componentes
+
 app = Flask(__name__)
+
+moment = Moment(app)
 
 @app.route('/')
 def hello_world():
     name = "eu estou usando o JINJA2!";
-    return render_template('template-base.html');
+    return render_template('template-base.html', current_time = datetime.utcnow());
 
 
 @app.route('/user/<name>')
 def hello_pront(name):
     name2 = name
-    return render_template('user.html')
+    return render_template('user.html', name = name, current_time = datetime.utcnow())
 
 
 @app.errorhandler(404)
 def not_found(e):
-    return render_template('404.html'), 404;
+    return render_template('404.html', current_time = datetime.utcnow()), 404;
 
 @app.route('/contextorequisicao')
 def hello_requisi_detalhes():
