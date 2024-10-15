@@ -5,12 +5,13 @@ app = Flask(__name__)
 @app.route('/')
 def hello_world():
     name = "eu estou usando o JINJA2!";
-    return render_template('index.html');
+    return render_template('template-base.html');
 
 
-@app.route('/user/<name>/<pront>/<inst>')
-def hello_pront(name, pront, inst):
-    return '<h1>Dados pela URL!</h1><table><tr><td><b>Aluno:</b></td><td>{}</td></tr><tr><td><b>Prontuário:</b></td><td>{}</td></tr><td><b>Instituição:</b></td><td>{}</td></tr></table>'.format(name, pront, inst)
+@app.route('/user/<name>')
+def hello_pront(name):
+    name2 = name
+    return render_template('user.html')
 
 
 @app.errorhandler(404)
