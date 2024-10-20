@@ -16,7 +16,7 @@ def hello_world():
 @app.route('/user/<name>')
 def hello_pront(name):
     name2 = name
-    return render_template('user.html', name = name, current_time = datetime.utcnow())
+    return render_template('user.html', name = name, pront = 'PT3026841', ins = 'IFSP' , current_time = datetime.utcnow())
 
 
 @app.errorhandler(404)
@@ -28,4 +28,4 @@ def hello_requisi_detalhes():
     navegador = request.headers.get('User-Agent')
     Ip_remoto = request.headers.get('X-Forwarded-For')
     host_name = request.headers.get('Host')
-    return '<h1>Dados pelo Contexto!</h1>Browser: {}</p><br><p>IP_cliente: {}</p><br><p>Host: {}</p>'.format(navegador,Ip_remoto,host_name)
+    return render_template('contextorequisicao.html', name = 'Guilherme', navegador = navegador, IP_cliente = Ip_remoto, host_name = host_name);
