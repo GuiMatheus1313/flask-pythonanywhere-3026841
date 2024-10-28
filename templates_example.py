@@ -1,18 +1,37 @@
 # A very simple Flask Hello World app for you to get started with...
 from flask import Flask, request, render_template
 from datetime import datetime
-from flask_moment import Moment #Perguntar ao professor se o objeto fo flask está vivo na memória para os outros componentes
+
+
+from flask_moment import Moment
+#Parte do WTF
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
 
 app = Flask(__name__)
 
+
+#Parte do WTF
+app.config['SECRET_KEY'] = 'chave forte'
+
 moment = Moment(app)
 
+class NameForm(FlaskForm):
+    name = StringField('Qual teu nome?', validators = [DataRequired()])
+    submit = SubmitField('Submit')
+
+#Essa rota está para uso do forms
+@app.route('/', methods=['GET', 'POST'])
+def hello_world():
+    form = NameForm()
+    return render_template('formularioTeste.html', form = form)
+"""
 @app.route('/')
 def hello_world():
     name = "eu estou usando o JINJA2!";
     return render_template('template-base.html', current_time = datetime.utcnow());
-
-
+"""
 @app.route('/user/<name>')
 def hello_pront(name):
     name2 = name

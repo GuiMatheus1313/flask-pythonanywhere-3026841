@@ -1,0 +1,35 @@
+{% extends "/bootstrap/template-base.html" %}
+
+{% block title %}FORMULÁRIO! :){% endblock %}
+
+{% block head %}
+   {{ super() }}
+{% endblock %}
+
+
+{% block body %}
+    {{ super() }}
+    <body>
+
+    {% block content %}
+        <h1>Hello, {% if name %}{{ name }}{% else %}Usuário{% endif %}!</h1><br><br>
+
+    <form method = "POST">
+        {{ form.hidden_tag() }}
+        {{ form.name.label }} {{ form.name(id='nomeId', class="form-control") }}
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+
+    {% endblock %}
+
+
+    {% block script %}
+        <!-- Optional JavaScript -->
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+        {{ moment.include_moment() }}
+    {% endblock %}
+
+    </body>
+
+{% endblock %}
