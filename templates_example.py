@@ -1,5 +1,5 @@
 # A very simple Flask Hello World app for you to get started with...
-from flask import Flask, request, render_template, session, url_for, redirect
+from flask import Flask, request, render_template, session, url_for, redirect, flash
 from datetime import datetime
 
 
@@ -26,6 +26,9 @@ class NameForm(FlaskForm):
 def hello_world():
     form = NameForm()
     if form.validate_on_submit():
+        old_name = session.get('name')
+        if old_name is not None and old_name != form.name.data:
+            flash('Mudando nome!')
         session['name'] = form.name.data
         return redirect(url_for('hello_world'))
     return render_template('formularioTeste.html', form = form, name = session.get('name'))
