@@ -1,5 +1,5 @@
 # A very simple Flask Hello World app for you to get started with...
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, session, url_for, redirect
 from datetime import datetime
 
 
@@ -25,7 +25,10 @@ class NameForm(FlaskForm):
 @app.route('/', methods=['GET', 'POST'])
 def hello_world():
     form = NameForm()
-    return render_template('formularioTeste.html', form = form)
+    if form.validate_on_submit():
+        session['name'] = form.name.data
+        return redirect(url_for('hello_world'))
+    return render_template('formularioTeste.html', form = form, name = session.get('name'))
 """
 @app.route('/')
 def hello_world():
