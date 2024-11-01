@@ -19,16 +19,32 @@
             {% endfor %}
         </div>
     {% block content %}
-        <h1>Hello, {% if name %}{{ name }}{% else %}Usuário{% endif %}!</h1><br><br>
+        <h1>Hello, {% if name %}{{ name }}{% else %}Usuário{% endif %} {{ sobreNome }}!</h1><br><br>
+        <h5>Hello, {% if inst %}{{ inst }}{% else %}Desconhecido{% endif %} </h5><br><br>
+        <h5>Hello, {% if disciplina %}{{ disciplina }}{% else %}Desconhecido{% endif %} </h5><br><br>
+
+
+        <h1>Dados pelo Contexto!</h1><br>
+        <h3>Browser: {% if browser %} {{ browser }} {% else %} Não analisado {% endif %}</h3><br>
+        <h3>Ip_Cliente: {% if ip_remoto %} {{ ip_remoto }} {% else %} Não analisado {% endif %}</h3><br>
+        <h3>Host: {% if host_name %} {{ host_name }} {% else %} Não analisado {% endif %}</h3>
 
     <form method = "POST">
         {{ form.hidden_tag() }}
         {{ form.name.label }} {{ form.name(id='nomeId', class="form-control") }}
+        {{ form.sobreNome.label }} {{ form.sobreNome(id='sobreId', class="form-control") }}
+        {{ form.inst.label }} {{ form.inst(id='instId', class="form-control") }}
+        {{ form.disciplina.label }} {{ form.disciplina(id='disId', class="form-control") }}
+
         {{ form.submit(class="btn btn-primary") }}
     </form>
 
     {% endblock %}
 
+    {% block footer %}
+      <h5>Horário: {{moment(current_time).format('LLL') }}</h5>
+      <h6>Acessou em: {{moment(current_time).fromNow(refresh = true) }} </h6>
+    {% endblock %}
 
     {% block script %}
         <!-- Optional JavaScript -->
