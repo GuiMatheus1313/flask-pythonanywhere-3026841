@@ -17,7 +17,7 @@ from wtforms.validators import DataRequired
 app = Flask(__name__)
 
 #parte SQL
-app.config['SQLALCHEMY_DATA_URI'] = \'sqlite:///' + os.path.join(basedir, 'data.sqlite)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -25,16 +25,16 @@ class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique = True)
-    users = db.relationship('User', backref='role')
+    users = db.relationship('User', backref='role', lazy='dynamic')
 
     def __repr__(self):
         return '<Role %r>' % self.name
 
-class User(db.Model)
+class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(64), unique = True, index = True)
-    role_id = db.Column(db.Integer, db.ForeignKey('roles_id'))
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -46,9 +46,6 @@ moment = Moment(app)
 
 class NameForm(FlaskForm):
     name = StringField('Qual teu nome?', validators = [DataRequired()])
-    sobreNome = StringField('Qual teu sobrenome?', validators = [DataRequired()])
-    inst = StringField('Informe a sua Insituição de ensino:', validators = [DataRequired()])
-    disciplina = SelectField('Informe a sua disciplina', choices=[('Desenvolvimento Web: Servidor', 'DWEBS'), ('Gestão de TI', 'GSTI'), ('Projeto de Extensão 4', 'EX4')])
     submit = SubmitField('Submit')
 
 #Essa rota está para uso do forms
@@ -56,13 +53,38 @@ class NameForm(FlaskForm):
 def hello_world():
     form = NameForm()
     if form.validate_on_submit():
-        session['navegador'] = request.headers.get('User-Agent')
-        session['Ip_remoto'] = request.headers.get('X-Forwarded-For')
-        session['host_name'] = request.headers.get('Host')
+        user = User.query.filter_by(username=form.name.data).first()
+        if user is None:
+            user = User(username=form.name.data)
+            db.session.add(user)
+            db.session.commit()
+            flash('Adicionado novo usuário')
+        else:
+            flash('Já conheço ele')
         session['name'] = form.name.data
-        session['sobreNome'] = form.sobreNome.data
-        session['inst'] = form.inst.data
-        session['disciplina'] = form.disciplina.data
         return redirect(url_for('hello_world'))
-    return render_template('formularioTeste.html', form = form, name = session.get('name'), sobreNome = session.get('sobreNome'), inst = session.get('inst'), disciplina = session.get('disciplina'),
-    browser = session.get('navegador'), ip_remoto = session.get('Ip_remoto'), host_name = session.get('host_name'), current_time = datetime.utcnow())
+    return render_template('formularioTeste.html', form = form, name = session.get('name'))
+
+"""
+@app.route('/')
+def hello_world():
+    name = "eu estou usando o JINJA2!";
+    return render_template('template-base.html', current_time = datetime.utcnow());
+"""
+@app.route('/user/<name>')
+def hello_pront(name):
+    name2 = name
+    return render_template('user.html', name = name, pront = 'PT3026841', ins = 'IFSP' , current_time = datetime.utcnow())
+@app.errorhandler(404)
+def not_found(e):
+    return render_template('404.html', current_time = datetime.utcnow()), 404;
+@app.route('/contextorequisicao')
+def hello_requisi_detalhes():
+    navegador = request.headers.get('User-Agent')
+    Ip_remoto = request.headers.get('X-Forwarded-For')
+    host_name = request.headers.get('Host')
+    return render_template('contextorequisicao.html', name = 'Guilherme', navegador = navegador, IP_cliente = Ip_remoto, host_name = host_name);
+
+@app.shell_context_processor
+def make_shell_context():
+    return dict(db=db, User=User, Role=Role)
