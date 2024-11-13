@@ -2,6 +2,11 @@
 from flask import Flask, request, render_template, session, url_for, redirect, flash
 from datetime import datetime
 
+#Parte SQL
+import os
+from flask_sqlalchemy import SQLAlchemy
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 
 from flask_moment import Moment
 #Parte do WTF
@@ -11,6 +16,10 @@ from wtforms.validators import DataRequired
 
 app = Flask(__name__)
 
+#parte SQL
+app.config['SQLALCHEMY_DATA_URI'] = \'sqlite:///' + os.path.join(basedir, 'data.sqlite)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
 #Parte do WTF
 app.config['SECRET_KEY'] = 'chave forte'
@@ -39,25 +48,3 @@ def hello_world():
         return redirect(url_for('hello_world'))
     return render_template('formularioTeste.html', form = form, name = session.get('name'), sobreNome = session.get('sobreNome'), inst = session.get('inst'), disciplina = session.get('disciplina'),
     browser = session.get('navegador'), ip_remoto = session.get('Ip_remoto'), host_name = session.get('host_name'), current_time = datetime.utcnow())
-"""
-@app.route('/')
-def hello_world():
-    name = "eu estou usando o JINJA2!";
-    return render_template('template-base.html', current_time = datetime.utcnow());
-"""
-@app.route('/user/<name>')
-def hello_pront(name):
-    name2 = name
-    return render_template('user.html', name = name, pront = 'PT3026841', ins = 'IFSP' , current_time = datetime.utcnow())
-
-
-@app.errorhandler(404)
-def not_found(e):
-    return render_template('404.html', current_time = datetime.utcnow()), 404;
-
-@app.route('/contextorequisicao')
-def hello_requisi_detalhes():
-    navegador = request.headers.get('User-Agent')
-    Ip_remoto = request.headers.get('X-Forwarded-For')
-    host_name = request.headers.get('Host')
-    return render_template('contextorequisicao.html', name = 'Guilherme', navegador = navegador, IP_cliente = Ip_remoto, host_name = host_name);
