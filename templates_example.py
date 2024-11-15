@@ -23,7 +23,7 @@ db = SQLAlchemy(app)
 
 class Role(db.Model):
     __tablename__ = 'roles'
-    id = db.Column(db.Float, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement = True )
     name = db.Column(db.String(64), unique = True)
     users = db.relationship('User', backref='role', lazy='dynamic')
 
@@ -32,7 +32,7 @@ class Role(db.Model):
 
 class User(db.Model):
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
     username = db.Column(db.String(64), unique = True, index = True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
@@ -56,10 +56,12 @@ class NameForm(FlaskForm):
 @app.route('/', methods=['GET', 'POST'])
 def hello_world():
     form = NameForm()
+    all_user = User.query.all()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
         if user is None:
-            user = User(username=form.name.data)
+            user_role = Role.query.filter_by(name='User').first()
+            user = User(username=form.name.data, role_id = user_role.id)
             db.session.add(user)
             db.session.commit()
             flash('Adicionado novo usuário')
@@ -67,7 +69,7 @@ def hello_world():
             flash('Já conheço ele')
         session['name'] = form.name.data
         return redirect(url_for('hello_world'))
-    return render_template('formularioTeste.html', form = form, name = session.get('name'))
+    return render_template('formularioTeste.html', form = form, name = session.get('name'), pessoa = all_user)
 
 """
 @app.route('/')

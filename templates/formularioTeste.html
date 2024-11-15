@@ -31,6 +31,27 @@
 
     {% endblock %}
 
+    {% block footer %}
+    <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nome</th>
+                    <th>Função</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for person in pessoa %}
+                    <tr>
+                        <td>{{ person.username }}</td>
+                        <td>{{ person.role.name}}</td>
+                    </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+    {% endblock %}
+
     {% block script %}
         <!-- Optional JavaScript -->
 
