@@ -23,7 +23,7 @@ db = SQLAlchemy(app)
 
 class Role(db.Model):
     __tablename__ = 'roles'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Float, primary_key=True)
     name = db.Column(db.String(64), unique = True)
     users = db.relationship('User', backref='role', lazy='dynamic')
 
@@ -43,6 +43,10 @@ class User(db.Model):
 app.config['SECRET_KEY'] = 'chave forte'
 
 moment = Moment(app)
+
+#Parte Migrate
+from flask_migrate import Migrate
+migrate = Migrate(app, db)
 
 class NameForm(FlaskForm):
     name = StringField('Qual teu nome?', validators = [DataRequired()])
