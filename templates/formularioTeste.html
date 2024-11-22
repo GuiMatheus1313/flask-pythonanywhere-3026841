@@ -32,6 +32,8 @@
     {% endblock %}
 
     {% block footer %}
+    <h2>Relação dos usuários cadastrados</h2>
+    <h5>Quantidade: {{ count_user }}</h5>
     <table class="table table-striped table-hover">
             <thead class="table-dark">
                 <tr>
@@ -48,7 +50,33 @@
                 {% endfor %}
 
             </tbody>
-        </table>
+    </table>
+
+    <h2>Relação das funções cadastradas</h2>
+    <h5>Quantidade: {{ count_role }}</h5>
+    <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Função</th>
+                    <th>Pessoas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tudo in all_role_user %}
+                    <tr>
+                        <td>{{ tudo.name }}</td>
+                        <td>
+                            <ol>
+                                {% for tudo_pessoas in tudo.users %}
+                                    <li>{{ tudo_pessoas.username}}</li>
+                                {% endfor %}
+                            </ol>
+                        </td>
+                    </tr>
+                {% endfor %}
+
+            </tbody>
+    </table>
 
     {% endblock %}
 

@@ -25,7 +25,7 @@ class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True, autoincrement = True )
     name = db.Column(db.String(64), unique = True)
-    users = db.relationship('User', backref='role', lazy='dynamic')
+    users = db.relationship('User', backref='role', lazy='joined')
 
     def __repr__(self):
         return '<Role %r>' % self.name
@@ -50,6 +50,7 @@ migrate = Migrate(app, db)
 
 class NameForm(FlaskForm):
     name = StringField('Qual teu nome?', validators = [DataRequired()])
+    role = SelectField('Informe seu Role', choices = [('Administrator', 'Administrator'), ('Moderator', 'Moderator'), ('User', 'User')])
     submit = SubmitField('Submit')
 
 #Essa rota está para uso do forms
@@ -57,6 +58,9 @@ class NameForm(FlaskForm):
 def hello_world():
     form = NameForm()
     all_user = User.query.all()
+    all_role_user = Role.query.options(db.joinedload(Role.users)).all()
+    count_user = User.query.count()
+    count_role = Role.query.count()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
         if user is None:
@@ -69,7 +73,7 @@ def hello_world():
             flash('Já conheço ele')
         session['name'] = form.name.data
         return redirect(url_for('hello_world'))
-    return render_template('formularioTeste.html', form = form, name = session.get('name'), pessoa = all_user)
+    return render_template('formularioTeste.html', form = form, name = session.get('name'), pessoa = all_user, count_user = count_user, count_role = count_role, all_role_user = all_role_user)
 
 """
 @app.route('/')
