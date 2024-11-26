@@ -64,11 +64,14 @@ def hello_world():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
         if user is None:
-            user_role = Role.query.filter_by(name='User').first()
-            user = User(username=form.name.data, role_id = user_role.id)
-            db.session.add(user)
-            db.session.commit()
-            flash('Adicionado novo usuário')
+            role_escolhido = Role.query.filter_by(name = form.role.data).first()
+            if role_escolhido:
+                user = User(username=form.name.data, role_id = role_escolhido.id)
+                db.session.add(user)
+                db.session.commit()
+                flash('Adicionado novo usuário')
+            else:
+                flash('Já conheço ele')
         else:
             flash('Já conheço ele')
         session['name'] = form.name.data

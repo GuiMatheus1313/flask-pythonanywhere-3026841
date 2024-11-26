@@ -25,6 +25,8 @@
     <form method = "POST">
         {{ form.hidden_tag() }}
         {{ form.name.label }} {{ form.name(id='nomeId', class="form-control") }}
+        {{ form.role.label }} {{ form.role(id='roleId', class="form-control") }}
+
 
         {{ form.submit(class="btn btn-primary") }}
     </form>
