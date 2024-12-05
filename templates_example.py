@@ -7,6 +7,14 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+#Parte do Request e Thread e Mail
+import os
+import sys
+from threading import Thread
+from flask_mail import Mail, Message
+import requests
+
+
 
 from flask_moment import Moment
 #Parte do WTF
@@ -20,6 +28,38 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+#Parte MAIL
+app.config['API_KEY'] = os.environ.get('API_KEY')
+app.config['API_URL'] = os.environ.get('API_URL')
+app.config['API_FROM'] = os.environ.get('API_FROM')
+app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = '[Flasky]'
+app.config['FLASKY_ADMIN'] = os.environ.get('FLASKY_ADMIN')
+mail = Mail(app)
+
+def send_simple_message(to, subject, newUser):
+    #Registrando para o para o server log
+    print('Enviando mensagem (POST)...', flush = True)
+    print('URL: ' + str(app.config['API_URL']), flush = True)
+    print('api: ' + str(app.config['API_KEY']), flush=True)
+    print('from: ' + str(app.config['API_FROM']), flush=True)
+    print('to: ' + str(to), flush=True)
+    print('subject: ' + str(app.config['FLASKY_MAIL_SUBJECT_PREFIX']) + ' ' + subject, flush=True)
+    print('text: ' + "Novo usuário cadastrado: " + newUser, flush=True)
+
+    #Fazer a parte de http
+    resposta = requests.post(app.config['API_URL'],
+                            auth=("api", app.config['API_KEY']),
+                            data={"from": app.config['API_FROM'],
+                                "to": to,
+                                "subject": app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
+                                "text": "Novo usuário cadastrado: " + newUser})
+
+    #Parte log do server
+    print('Enviando mensagem (Resposta)...' + str(resposta) + ' - ' + datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), flush=True)
+    return resposta
+
+
 
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -53,30 +93,31 @@ class NameForm(FlaskForm):
     role = SelectField('Informe seu Role', choices = [('Administrator', 'Administrator'), ('Moderator', 'Moderator'), ('User', 'User')])
     submit = SubmitField('Submit')
 
+###########################################################################################################################################
+
 #Essa rota está para uso do forms
 @app.route('/', methods=['GET', 'POST'])
 def hello_world():
     form = NameForm()
-    all_user = User.query.all()
-    all_role_user = Role.query.options(db.joinedload(Role.users)).all()
-    count_user = User.query.count()
-    count_role = Role.query.count()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
         if user is None:
-            role_escolhido = Role.query.filter_by(name = form.role.data).first()
-            if role_escolhido:
-                user = User(username=form.name.data, role_id = role_escolhido.id)
-                db.session.add(user)
-                db.session.commit()
-                flash('Adicionado novo usuário')
-            else:
-                flash('Já conheço ele')
+
+            user = User(username=form.name.data, role_id = role_escolhido.id)
+            db.session.add(user)
+            db.session.commit()
+            flash('Adicionado novo usuário')
+
+            print('Novo usuário ativando')
+            if app.config['FLASKY_ADMIN']:
+                print('Enviando mensagem...', flush=True)
+                send_simple_message([app.config['FLASKY_ADMIN'], "flaskaulasweb@zohomail.com"], 'Novo usuário', form.name.data)
+                print('Mensagem enviada!...', flush=True)
         else:
             flash('Já conheço ele')
         session['name'] = form.name.data
         return redirect(url_for('hello_world'))
-    return render_template('formularioTeste.html', form = form, name = session.get('name'), pessoa = all_user, count_user = count_user, count_role = count_role, all_role_user = all_role_user)
+    return render_template('formularioTeste.html', form = form, name = session.get('name'))
 
 """
 @app.route('/')
