@@ -14,6 +14,12 @@ from threading import Thread
 from flask_mail import Mail, Message
 import requests
 
+# Importação do dotenv
+from dotenv import load_dotenv
+import os
+
+# Carregar as variáveis de ambiente do arquivo .env
+load_dotenv()
 
 
 from flask_moment import Moment
@@ -60,6 +66,20 @@ def send_simple_message(to, subject, newUser):
     return resposta
 
 
+def verificar_variaveis_ambiente():
+    print("=== Verificação de Variáveis de Ambiente ===", flush=True)
+    variaveis = [
+            "FLASK_APP",
+            "FLASK_DEBUG",
+            "MAIL_USERNAME",
+            "MAIL_PASSWORD",
+            "FLASKY_ADMIN"
+    ]
+    for var in variaveis:
+        valor = os.environ.get(var)
+        print(f"{var}: {'Definida' if valor else 'Não definida'}", flush=True)
+    print("===========================================", flush=True)
+
 
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -99,10 +119,11 @@ class NameForm(FlaskForm):
 @app.route('/', methods=['GET', 'POST'])
 def hello_world():
     form = NameForm()
+    verificar_variaveis_ambiente()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
         if user is None:
-
+            role_escolhido = Role.query.filter_by(name="User").first()
             user = User(username=form.name.data, role_id = role_escolhido.id)
             db.session.add(user)
             db.session.commit()
