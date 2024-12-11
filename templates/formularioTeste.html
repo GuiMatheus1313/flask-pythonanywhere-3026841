@@ -20,15 +20,42 @@
         </div>
     {% block content %}
         <h1>Hello, {% if name %}{{ name }}{% else %}Usuário {% endif %}</h1><br><br>
+        <p>
+            {% if checkemail %}
+                Será enviado o email para o <strong>administrador</strong> notificando sobre um novo cadastro!
+            {% else %}
+            {% endif %}
+
+        </p><br>
 
 
     <form method = "POST">
         {{ form.hidden_tag() }}
         {{ form.name.label }} {{ form.name(id='nomeId', class="form-control") }}
+        {{ form.email_choice() }} {{ form.email_choice.label }}<br>
 
         {{ form.submit(class="btn btn-primary") }}
     </form>
 
+    {% endblock %}
+
+    {% block footer %}
+    <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nome</th>
+                    <th>Função</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for person in pessoa %}
+                    <tr>
+                        <td>{{ person.username }}</td>
+                        <td>{{ person.role.name}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% endblock %}
 
     {% block script %}

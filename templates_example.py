@@ -25,7 +25,7 @@ load_dotenv()
 from flask_moment import Moment
 #Parte do WTF
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField
+from wtforms import StringField, SubmitField, SelectField, BooleanField
 from wtforms.validators import DataRequired
 
 app = Flask(__name__)
@@ -110,7 +110,7 @@ migrate = Migrate(app, db)
 
 class NameForm(FlaskForm):
     name = StringField('Qual teu nome?', validators = [DataRequired()])
-    role = SelectField('Informe seu Role', choices = [('Administrator', 'Administrator'), ('Moderator', 'Moderator'), ('User', 'User')])
+    email_choice = BooleanField('Deseja enviar para o email do administrador?')
     submit = SubmitField('Submit')
 
 ###########################################################################################################################################
@@ -119,6 +119,7 @@ class NameForm(FlaskForm):
 @app.route('/', methods=['GET', 'POST'])
 def hello_world():
     form = NameForm()
+    all_user = User.query.all()
     verificar_variaveis_ambiente()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
@@ -128,17 +129,13 @@ def hello_world():
             db.session.add(user)
             db.session.commit()
             flash('Adicionado novo usuário')
-
-            print('Novo usuário ativando')
-            if app.config['FLASKY_ADMIN']:
-                print('Enviando mensagem...', flush=True)
-                send_simple_message([app.config['FLASKY_ADMIN'], "flaskaulasweb@zohomail.com"], 'Novo usuário', form.name.data)
-                print('Mensagem enviada!...', flush=True)
+            session['checkemail'] = form.email_choice.data
         else:
             flash('Já conheço ele')
+            session['checkemail'] = False
         session['name'] = form.name.data
         return redirect(url_for('hello_world'))
-    return render_template('formularioTeste.html', form = form, name = session.get('name'))
+    return render_template('formularioTeste.html', form = form, name = session.get('name'), checkemail = session.get('checkemail'), pessoa = all_user)
 
 """
 @app.route('/')
