@@ -28,7 +28,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, BooleanField
 from wtforms.validators import DataRequired
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='/home/GuiMatheus1313/mysite/app/templates') #Modificação do caminho padrão do JINJA2 para os templates
 
 #parte SQL
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
@@ -77,7 +77,10 @@ def verificar_variaveis_ambiente():
     ]
     for var in variaveis:
         valor = os.environ.get(var)
-        print(f"{var}: {'Definida' if valor else 'Não definida'}", flush=True)
+        if valor:
+            print(f"{var}: {valor}", flush=True)
+        else:
+            print(f"{var}: Não definida", flush=True)
     print("===========================================", flush=True)
 
 
