@@ -10,18 +10,22 @@ class Config:
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
-    FLASKY_MAIL_SENDER = 'Flasky Admin <flaskaulas@zohomail.com>'
+    FLASKY_MAIL_SENDER = 'flaskaulas@zohomail.com'
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    API_KEY = os.environ.get('API_KEY') or 'a15b12a3522ce4bef148c2d74ec14fa4-f55d7446-dfa447e9'
+    API_URL = os.environ.get('API_URL') or 'https://api.mailgun.net/v3/sandbox31ba268b97dc4ad3be62ef482becdd1a.mailgun.org/messages'
+    API_FROM = os.environ.get('API_FROM') or 'jesus.guilherme@zohomail.com'
 
     @staticmethod
     def init_app(app):
         pass
 
-
+#Definir os ambientes
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 
 
 class TestingConfig(Config):
