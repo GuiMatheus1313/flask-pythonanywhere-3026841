@@ -19,6 +19,11 @@ def hello_world():
             db.session.commit()
             flash('Adicionado novo usuário')
             session['checkemail'] = form.email_choice.data
+            if current_app.config['FLASKY_ADMIN']:
+                #send_email(current_app.config['FLASKY_ADMIN'], 'New User', 'mail/new_user', user=user)
+                print('Enviando mensagem...', flush=True)
+                send_simple_message([current_app.config['FLASKY_ADMIN'], "flaskaulasweb@zohomail.com"], 'Novo usuário', form.name.data)
+                print('Mensagem enviada...', flush=True)
         else:
             flash('Já conheço ele')
             session['checkemail'] = False
