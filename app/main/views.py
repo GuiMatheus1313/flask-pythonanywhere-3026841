@@ -3,7 +3,7 @@ from flask import render_template, session, redirect, url_for, current_app, flas
 from . import main
 from .forms import NameForm
 from .. import db #está voltando duas pastas
-from ..models import User
+from ..models import User, Role
 from ..email import send_email, send_simple_message
 
 
@@ -14,7 +14,8 @@ def hello_world():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
         if user is None:
-            user = User(username=form.name.data)
+            role_user = Role.query.filter(Role.name == 'User').first()
+            user = User(username=form.name.data, role_id=role_user.id)
             db.session.add(user)
             db.session.commit()
             flash('Adicionado novo usuário')
@@ -26,7 +27,7 @@ def hello_world():
                 print('Mensagem enviada...', flush=True)
         else:
             flash('Já conheço ele')
-            session['checkemail'] = False
+            session['checkemail'] = ''
         session['name'] = form.name.data
         return redirect(url_for('main.hello_world'))
     return render_template('formularioTeste.html', form = form, name = session.get('name'), checkemail = session.get('checkemail'), pessoa = all_user)
