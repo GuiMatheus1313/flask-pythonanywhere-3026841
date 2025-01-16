@@ -1,5 +1,5 @@
 # A very simple Flask Hello World app for you to get started with...
-from flask import Flask, request, render_template, session, url_for, redirect, flash
+from flask import Flask, request, render_template, session, url_for, redirect, flash, abort
 from datetime import datetime
 
 #Parte SQL
@@ -14,7 +14,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField
 from wtforms.validators import DataRequired
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='/home/GuiMatheus1313/myfinal/templates')
 
 #parte SQL
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
@@ -54,8 +54,9 @@ class NameForm(FlaskForm):
     submit = SubmitField('Submit')
 
 #Essa rota está para uso do forms
-@app.route('/', methods=['GET', 'POST'])
-def hello_world():
+
+@app.route('/alunos', methods=['GET', 'POST'])
+def alunos():
     form = NameForm()
     all_user = User.query.all()
     all_role_user = Role.query.options(db.joinedload(Role.users)).all()
@@ -75,22 +76,27 @@ def hello_world():
         else:
             flash('Já conheço ele')
         session['name'] = form.name.data
-        return redirect(url_for('hello_world'))
-    return render_template('formularioTeste.html', form = form, name = session.get('name'), pessoa = all_user, count_user = count_user, count_role = count_role, all_role_user = all_role_user)
+        return redirect(url_for('alunos'))
+    return render_template('index.html', form = form, name = session.get('name'), pessoa = all_user, count_user = count_user, count_role = count_role, all_role_user = all_role_user)
 
-"""
+
 @app.route('/')
 def hello_world():
-    name = "eu estou usando o JINJA2!";
-    return render_template('template-base.html', current_time = datetime.utcnow());
-"""
+    return render_template('index.html');
 @app.route('/user/<name>')
 def hello_pront(name):
     name2 = name
     return render_template('user.html', name = name, pront = 'PT3026841', ins = 'IFSP' , current_time = datetime.utcnow())
+
+
 @app.errorhandler(404)
-def not_found(e):
+def not_found_404(e):
     return render_template('404.html', current_time = datetime.utcnow()), 404;
+
+@app.route('/404')
+def not_found():
+    abort(404)
+
 @app.route('/contextorequisicao')
 def hello_requisi_detalhes():
     navegador = request.headers.get('User-Agent')
