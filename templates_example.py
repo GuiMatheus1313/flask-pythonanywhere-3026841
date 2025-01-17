@@ -21,23 +21,23 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'da
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-class Role(db.Model):
-    __tablename__ = 'roles'
+class Disci(db.Model):
+    __tablename__ = 'disciplinas'
     id = db.Column(db.Integer, primary_key=True, autoincrement = True )
     name = db.Column(db.String(64), unique = True)
-    users = db.relationship('User', backref='role', lazy='joined')
+    alunos = db.relationship('Aluno', backref='disciplinas', lazy='joined')
 
     def __repr__(self):
-        return '<Role %r>' % self.name
+        return '<Disci %r>' % self.name
 
-class User(db.Model):
-    __tablename__ = 'users'
+class Aluno(db.Model):
+    __tablename__ = 'alunos'
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
-    username = db.Column(db.String(64), unique = True, index = True)
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    name = db.Column(db.String(64), unique = True, index = True)
+    disci_id = db.Column(db.Integer, db.ForeignKey('disciplinas.id'))
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<Aluno %r>' % self.name
 
 #Parte do WTF
 app.config['SECRET_KEY'] = 'chave forte'
@@ -48,45 +48,41 @@ moment = Moment(app)
 from flask_migrate import Migrate
 migrate = Migrate(app, db)
 
-class NameForm(FlaskForm):
+class AlunoForm(FlaskForm):
     name = StringField('Qual teu nome?', validators = [DataRequired()])
-    role = SelectField('Informe seu Role', choices = [('Administrator', 'Administrator'), ('Moderator', 'Moderator'), ('User', 'User')])
-    submit = SubmitField('Submit')
+    disci = SelectField('Informe sua disciplina', choices = [('DSWA5', 'DSWA5'), ('GPSA5', 'GPSA5'), ('IHCA5', 'IHCA'), ('SODA5', 'SODA5'), ('PJIA5', 'PJIA5'), ('TCOA5', 'TCOA5')])
+    submit = SubmitField('Cadastrar')
 
-#Essa rota está para uso do forms
 
-@app.route('/alunos', methods=['GET', 'POST'])
-def alunos():
-    form = NameForm()
-    all_user = User.query.all()
-    all_role_user = Role.query.options(db.joinedload(Role.users)).all()
-    count_user = User.query.count()
-    count_role = Role.query.count()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.name.data).first()
-        if user is None:
-            role_escolhido = Role.query.filter_by(name = form.role.data).first()
-            if role_escolhido:
-                user = User(username=form.name.data, role_id = role_escolhido.id)
-                db.session.add(user)
-                db.session.commit()
-                flash('Adicionado novo usuário')
-            else:
-                flash('Já conheço ele')
-        else:
-            flash('Já conheço ele')
-        session['name'] = form.name.data
-        return redirect(url_for('alunos'))
-    return render_template('index.html', form = form, name = session.get('name'), pessoa = all_user, count_user = count_user, count_role = count_role, all_role_user = all_role_user)
+
 
 
 @app.route('/')
 def hello_world():
-    return render_template('index.html');
-@app.route('/user/<name>')
-def hello_pront(name):
-    name2 = name
-    return render_template('user.html', name = name, pront = 'PT3026841', ins = 'IFSP' , current_time = datetime.utcnow())
+    return render_template('index.html', current_time = datetime.utcnow());
+
+
+
+#Essa rota está para uso do forms
+@app.route('/alunos', methods=['GET', 'POST'])
+def alunos():
+    form = AlunoForm()
+    all_user = Aluno.query.all()
+    if form.validate_on_submit():
+        user = Aluno.query.filter_by(name=form.name.data).first()
+        if user is None:
+            disci_escolhida = Disci.query.filter_by(name = form.disci.data).first()
+            if disci_escolhida:
+                user = Aluno(name=form.name.data, disci_id = disci_escolhida.id)
+                db.session.add(user)
+                db.session.commit()
+                flash('Adicionado novo aluno')
+            else:
+                flash('Já conheço ele')
+        else:
+            flash('Já conheço ele')
+        return redirect(url_for('alunos'))
+    return render_template('formularioTeste.html', form = form, pessoa = all_user)
 
 
 @app.errorhandler(404)
@@ -106,4 +102,4 @@ def hello_requisi_detalhes():
 
 @app.shell_context_processor
 def make_shell_context():
-    return dict(db=db, User=User, Role=Role)
+    return dict(db=db, Aluno=Aluno, Disci=Disci)
